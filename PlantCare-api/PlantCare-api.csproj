@@ -5,10 +5,20 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>PlantCare_api</RootNamespace>
+        <AllowMissingPrunePackageData>true</AllowMissingPrunePackageData>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.5">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.5" />
+        <PackageReference Include="Oracle.EntityFrameworkCore" Version="10.23.26200" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.1.7" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.7" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.7" />
     </ItemGroup>
 
 </Project>
