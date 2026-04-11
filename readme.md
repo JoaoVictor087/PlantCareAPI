@@ -19,7 +19,7 @@ A solução foi modularizada para suportar uma cultura de testes automatizados:
 ## Como executar o projeto
 
 ### 1. Rodando a API Localmente
-Certifique-se de configurar a sua *Connection String* do Oracle no arquivo `appsettings.json` ou preferencialmente via `.NET User Secrets` (para não versionar credenciais).
+Certifique-se de configurar a sua *Connection String* do Oracle no arquivo `appsettings.json`.
 
 ```bash
 # Entre na pasta do projeto principal
@@ -27,4 +27,10 @@ cd PlantCare-api
 
 # Execute a aplicação
 dotnet run
+```
+
+#### Rodando testes
+
+```bash
+dotnet test
 ```

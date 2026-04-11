@@ -23,7 +23,15 @@ builder.Services.AddScoped<IPlantaRepository, PlantaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IPlantaService, PlantaService>();
 
-builder.Services.AddApplicationInsightsTelemetry();
+var appInsightsConnString = builder.Configuration["ApplicationInsights:ConnectionString"];
+if (!string.IsNullOrEmpty(appInsightsConnString))
+{
+    builder.Services.AddApplicationInsightsTelemetry();
+}
+else
+{
+    Log.Warning("Application Insights desativado: Connection String não encontrada.");
+}
 
 builder.Services.AddHealthChecks()
     .AddOracle(builder.Configuration.GetConnectionString("DefaultConnection"), name: "Oracle-DB");
