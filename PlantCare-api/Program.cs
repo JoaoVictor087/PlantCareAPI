@@ -21,9 +21,7 @@ builder.Services.AddDbContext<PlantCareContext>(options =>
 
 builder.Services.AddScoped<IPlantaRepository, PlantaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-
 builder.Services.AddScoped<IPlantaService, PlantaService>();
-builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 builder.Services.AddApplicationInsightsTelemetry();
 
@@ -48,3 +46,7 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 
 app.Run();
+
+public partial class Program
+{
+}
