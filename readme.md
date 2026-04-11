@@ -2,6 +2,17 @@
 
 Backend desenvolvido em .NET Core (C#) para o gerenciamento e monitoramento de plantas, utilizando banco de dados Oracle.
 
+## Integrantes
+
+Este projeto foi desenvolvido por:
+
+| Nome Completo | RM |
+|---------------|-----|
+| João Victor Alves da Silva | 559726 |
+| Vinicius Kenzo Tocuyosi | 559982 |
+| Juan Pablo Rebelo Coelho | 560445 |
+
+
 ## Features
 
 ### 1. Monitoramento e Observabilidade
