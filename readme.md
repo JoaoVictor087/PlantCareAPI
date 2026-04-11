@@ -25,6 +25,26 @@ A solução foi modularizada para suportar uma cultura de testes automatizados:
 * **Testes Unitários (`PlantCare-api.Tests.Unit`):** Utilizando `xUnit` e `Moq` para validar as regras de negócio da camada de *Service* (ex: tratamento de strings e validações) isolando o acesso ao banco de dados.
 * **Testes de Integração (`PlantCare-api.Tests.Integration`):** Utilizando `WebApplicationFactory` para levantar a API em memória e testar o fluxo HTTP de ponta a ponta nas *Controllers*, aplicando injeção de dependência customizada para isolamento da infraestrutura externa durante os testes.
 
+
+---
+
+## Endpoints da API
+
+A documentação interativa completa pode ser acessada via Swagger navegando para `/swagger` quando a aplicação estiver em execução. Abaixo estão as rotas principais:
+
+### Monitoramento
+* `GET /health` : Retorna o status de saúde da aplicação e sua comunicação com o banco Oracle (Retornos esperados: `Healthy` ou `Unhealthy`).
+
+### Usuários
+* `POST /api/usuario` : Cadastra um novo usuário no sistema.
+
+### Plantas
+* `GET /api/planta` : Retorna a lista de todas as plantas cadastradas.
+* `GET /api/planta/{id}` : Retorna os detalhes de uma planta específica pelo seu ID.
+* `POST /api/planta` : Cadastra uma nova planta vinculada a um usuário existente.
+* `PUT /api/planta/{id}` : Atualiza os dados completos de uma planta.
+* `DELETE /api/planta/{id}` : Remove uma planta do sistema.
+
 ---
 
 ## Como executar o projeto
