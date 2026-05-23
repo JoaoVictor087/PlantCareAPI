@@ -1,10 +1,8 @@
 # PlantCare API
 
-Backend desenvolvido em .NET Core (C#) para o gerenciamento e monitoramento de plantas, utilizando banco de dados Oracle.
+Backend em **ASP.NET Core 8** para gerenciamento e monitoramento de plantas, consolidando as entregas das Sprints 1, 2 e 3 com arquitetura em camadas, API RESTful completa, persistência relacional (Oracle) e NoSQL (MongoDB), observabilidade e testes automatizados.
 
 ## Integrantes
-
-Este projeto foi desenvolvido por:
 
 | Nome Completo | RM |
 |---------------|-----|
@@ -12,56 +10,245 @@ Este projeto foi desenvolvido por:
 | Vinicius Kenzo Tocuyosi | 559982 |
 | Juan Pablo Rebelo Coelho | 560445 |
 
+---
 
-## Features
+## Arquitetura
 
-### 1. Monitoramento e Observabilidade
-* **Health Checks:** Adicionado endpoint dedicado para verificar a saúde da conexão com o banco de dados Oracle.
-* **Tracing e Métricas:** Integração com **Application Insights** via Auto-Instrumentation para rastrear requisições HTTP, tempo de resposta e consultas SQL.
-* **Logging Estruturado:** Configuração do **Serilog** substituindo o logger padrão. Injeção de logs estratégicos (Information, Warning, Error) nas Controllers, formatados para facilitar a indexação e análise no console.
+A solução segue **Clean Architecture** com separação clara de responsabilidades:
 
-### 2. Testes Automatizados (Padrão AAA)
-A solução foi modularizada para suportar uma cultura de testes automatizados:
-* **Testes Unitários (`PlantCare-api.Tests.Unit`):** Utilizando `xUnit` e `Moq` para validar as regras de negócio da camada de *Service* (ex: tratamento de strings e validações) isolando o acesso ao banco de dados.
-* **Testes de Integração (`PlantCare-api.Tests.Integration`):** Utilizando `WebApplicationFactory` para levantar a API em memória e testar o fluxo HTTP de ponta a ponta nas *Controllers*, aplicando injeção de dependência customizada para isolamento da infraestrutura externa durante os testes.
+```mermaid
+flowchart TB
+    subgraph Presentation["PlantCare-api (Apresentação)"]
+        C[Controllers]
+        M[ExceptionHandlingMiddleware]
+        S[Swagger / Serilog]
+    end
 
+    subgraph Application["PlantCare.Application"]
+        DTO[DTOs]
+        SVC[Services / Use Cases]
+        PORT[Interfaces de Repositório]
+        HATEOAS[HATEOAS / Paginação]
+    end
+
+    subgraph Domain["PlantCare.Domain"]
+        ENT[Entidades]
+        EXC[Exceções de Domínio]
+    end
+
+    subgraph Infrastructure["PlantCare.Infrastructure"]
+        ORA[(Oracle EF Core)]
+        MONGO[(MongoDB)]
+        JWT[JWT / Password Hash]
+        REPO[Repositórios Concretos]
+    end
+
+    C --> SVC
+    SVC --> PORT
+    SVC --> ENT
+    REPO -.implementa.-> PORT
+    REPO --> ORA
+    REPO --> MONGO
+    M --> C
+```
+
+### Projetos da solução
+
+| Projeto | Responsabilidade |
+|---------|------------------|
+| `PlantCare.Domain` | Entidades e regras de domínio puras |
+| `PlantCare.Application` | Casos de uso, DTOs, interfaces, HATEOAS |
+| `PlantCare.Infrastructure` | EF Core Oracle, MongoDB, JWT, repositórios |
+| `PlantCare-api` | Controllers, middleware, configuração HTTP |
+| `PlantCare-api.Tests.Unit` | Testes unitários (Domínio + Aplicação) |
+| `PlantCare-api.Tests.Integration` | Testes de integração HTTP |
+
+### Princípios aplicados
+
+- **SOLID**: interfaces para repositórios e serviços; injeção de dependência em todas as camadas
+- **DIP**: Application define contratos; Infrastructure implementa
+- **SRP**: controllers finos; regras de negócio nos services
+- **Tratamento global de exceções**: `ExceptionHandlingMiddleware` retorna `ProblemDetails` JSON
+
+---
+
+## Tecnologias
+
+- ASP.NET Core 8, Entity Framework Core + Oracle
+- MongoDB Driver (registros de cuidado)
+- JWT Bearer Authentication
+- Serilog (logging estruturado)
+- Application Insights (opcional)
+- Health Checks (Oracle + MongoDB)
+- xUnit + Moq + WebApplicationFactory
+
+---
+
+## Pré-requisitos
+
+- [.NET 8 SDK](https://dotnet.microsoft.com/download)
+- Oracle Database (connection string FIAP ou local)
+- MongoDB (local ou Atlas) para registros de cuidado
+- (Opcional) Application Insights Connection String
+
+---
+
+## Configuração
+
+Edite `PlantCare-api/appsettings.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=...;User Id=...;Password=...;"
+  },
+  "MongoDb": {
+    "ConnectionString": "mongodb://localhost:27017",
+    "DatabaseName": "PlantCareDb"
+  },
+  "Jwt": {
+    "Key": "sua_chave_secreta_com_pelo_menos_32_caracteres",
+    "Issuer": "PlantCareAPI",
+    "Audience": "PlantCareAPI"
+  }
+}
+```
+
+### Migrações EF Core (Oracle)
+
+```bash
+cd PlantCare.Infrastructure
+dotnet ef database update --startup-project ../PlantCare-api
+```
+
+---
+
+## Como executar
+
+```bash
+cd PlantCare-api
+dotnet run
+```
+
+- Swagger UI: `https://localhost:{porta}/swagger`
+- Health Check: `GET /health`
+
+---
+
+## Autenticação JWT
+
+1. Cadastre um usuário: `POST /api/usuario`
+2. Faça login: `POST /api/auth/login` com `{ "email", "senha" }`
+3. Use o token retornado: `Authorization: Bearer {token}`
+4. Endpoints de plantas e registros de cuidado exigem autenticação
 
 ---
 
 ## Endpoints da API
 
-A documentação interativa completa pode ser acessada via Swagger navegando para `/swagger` quando a aplicação estiver em execução. Abaixo estão as rotas principais:
-
 ### Monitoramento
-* `GET /health` : Retorna o status de saúde da aplicação e sua comunicação com o banco Oracle (Retornos esperados: `Healthy` ou `Unhealthy`).
 
-### Usuários
-* `POST /api/usuario` : Cadastra um novo usuário no sistema.
+| Método | Rota | Descrição | Auth |
+|--------|------|-----------|------|
+| GET | `/health` | Saúde Oracle + MongoDB | Não |
 
-### Plantas
-* `GET /api/planta` : Retorna a lista de todas as plantas cadastradas.
-* `GET /api/planta/{id}` : Retorna os detalhes de uma planta específica pelo seu ID.
-* `POST /api/planta` : Cadastra uma nova planta vinculada a um usuário existente.
-* `PUT /api/planta/{id}` : Atualiza os dados completos de uma planta.
-* `DELETE /api/planta/{id}` : Remove uma planta do sistema.
+### Autenticação e Usuários
+
+| Método | Rota | Descrição | Auth |
+|--------|------|-----------|------|
+| POST | `/api/usuario` | Cadastrar usuário (senha com hash) | Não |
+| POST | `/api/auth/login` | Obter token JWT | Não |
+
+### Plantas (HATEOAS + Paginação)
+
+| Método | Rota | Descrição | Auth |
+|--------|------|-----------|------|
+| GET | `/api/planta` | Listar com paginação, ordenação e filtros | Sim |
+| GET | `/api/planta/{id}` | Detalhe com links HATEOAS | Sim |
+| POST | `/api/planta` | Criar planta | Sim |
+| PUT | `/api/planta/{id}` | Atualizar planta | Sim |
+| DELETE | `/api/planta/{id}` | Remover planta | Sim |
+
+**Query parameters** (`GET /api/planta`):
+
+| Parâmetro | Descrição | Padrão |
+|-----------|-----------|--------|
+| `page` | Página atual | 1 |
+| `pageSize` | Itens por página (máx. 50) | 10 |
+| `sortBy` | `id`, `nome`, `especie`, `status`, `datacadastro` | id |
+| `sortDirection` | `asc` ou `desc` | asc |
+| `nome` | Filtro parcial por nome | - |
+| `especie` | Filtro parcial por espécie | - |
+| `status` | Filtro exato por status | - |
+| `usuarioId` | Filtro por usuário | - |
+
+**Exemplo de resposta paginada com HATEOAS:**
+
+```json
+{
+  "data": [ { "id": 1, "nome": "Samambaia", "...": "..." } ],
+  "pagination": {
+    "page": 1,
+    "pageSize": 10,
+    "totalItems": 25,
+    "totalPages": 3,
+    "hasPrevious": false,
+    "hasNext": true
+  },
+  "links": [
+    { "rel": "self", "href": "https://localhost:5001/api/planta?page=1&pageSize=10", "method": "GET" },
+    { "rel": "next", "href": "https://localhost:5001/api/planta?page=2&pageSize=10", "method": "GET" }
+  ]
+}
+```
+
+### Registros de Cuidado (MongoDB)
+
+| Método | Rota | Descrição | Auth |
+|--------|------|-----------|------|
+| POST | `/api/registroscuidado` | Registrar cuidado (rega, poda, etc.) | Sim |
+| GET | `/api/registroscuidado/planta/{plantaId}` | Listar registros de uma planta | Sim |
 
 ---
 
-## Como executar o projeto
-
-### 1. Rodando a API Localmente
-Certifique-se de configurar a sua *Connection String* do Oracle no arquivo `appsettings.json`.
-
-```bash
-# Entre na pasta do projeto principal
-cd PlantCare-api
-
-# Execute a aplicação
-dotnet run
-```
-
-#### Rodando testes
+## Testes
 
 ```bash
 dotnet test
+```
+
+| Projeto | Cobertura |
+|---------|-----------|
+| `PlantCare-api.Tests.Unit` | Domínio (`Planta`) e Aplicação (`PlantaService`, `UsuarioService`) |
+| `PlantCare-api.Tests.Integration` | Controllers HTTP com JWT e mocks |
+
+Padrão **AAA** (Arrange, Act, Assert) em todos os testes.
+
+---
+
+## Observabilidade
+
+- **Serilog**: logs estruturados no console com enrich de contexto
+- **Health Checks**: `/health` verifica Oracle e MongoDB
+- **Application Insights**: ativado quando `ApplicationInsights:ConnectionString` está configurado
+
+---
+
+## Documentação OpenAPI
+
+A especificação completa está disponível em `/swagger/v1/swagger.json` com autenticação Bearer configurada. Use o Swagger UI para testar os endpoints interativamente.
+
+---
+
+## Estrutura de pastas
+
+```
+PlantCareAPI/
+├── PlantCare.Domain/
+├── PlantCare.Application/
+├── PlantCare.Infrastructure/
+├── PlantCare-api/
+├── PlantCare-api.Tests.Unit/
+├── PlantCare-api.Tests.Integration/
+└── readme.md
 ```
