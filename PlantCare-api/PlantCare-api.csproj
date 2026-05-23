@@ -1,28 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>PlantCare_api</RootNamespace>
-        <AllowMissingPrunePackageData>true</AllowMissingPrunePackageData>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspNetCore.HealthChecks.Oracle" Version="9.0.0" />
-        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="3.1.0" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.5">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.5" />
-        <PackageReference Include="Oracle.EntityFrameworkCore" Version="10.23.26200" />
-        <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
-        <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.1.7" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.7" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.7" />
+        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
+        <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\PlantCare.Application\PlantCare.Application.csproj" />
+        <ProjectReference Include="..\PlantCare.Infrastructure\PlantCare.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
